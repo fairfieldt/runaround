@@ -1,6 +1,14 @@
 var $ = require('jash');
 var async = require('async');
 
+/*
+	TODO
+	kill application
+	send intent
+	read from logcat
+	detect application exit
+
+*/
 var Emulator = exports.Emulator = function(opts) {
 	//TODO require avdName and port
 	//TODO can we support real devices
@@ -97,7 +105,8 @@ Emulator.prototype.unlock = function(cb) {
 
 
 /*
-* fn takes a final parameter, timer, which will have timer.fired
+* call an asynchronous function until it succeeds or times out
+* fn(arg1, arg2, ... ,timer, callback)
 * keep running until timer.fired === true
 * when the desired state is hit, call timer.clear()
 * to go to the next iteration, call timer.next(interval)
