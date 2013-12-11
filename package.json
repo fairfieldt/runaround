@@ -1,0 +1,31 @@
+{
+  "name": "runaround",
+  "version": "0.0.1",
+  "description": "android emulator automation",
+  "bin": {
+	  "runaround": "./bin/runaround.js"
+  },
+  "scripts": {
+    "test": "make test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gameclosure/runaround"
+  },
+  "dependencies": {
+	"optimist": ">=0.3.4",
+	"jash": ">=0.1.2",
+	"async":">=0.2.9" 
+  },
+  "keywords": [
+    "android",
+    "adb",
+    "emulator"
+  ],
+  "author": "Tom Fairfield",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/gameclosure/runaround/issues"
+  },
+  "homepage": "https://github.com/gameclosure/runaround"
+}
