@@ -1,5 +1,6 @@
 var $ = require('jash');
 var async = require('async');
+var EventEmitter = require('events').EventEmitter;
 
 /*
 	TODO
@@ -19,20 +20,23 @@ var Emulator = exports.Emulator = function(opts) {
 	this._serial = 'emulator-' + this._port;
 	console.log(this._serial);
 };
+Emulator.prototype.__proto__ = EventEmitter.prototype;
 
 Emulator.prototype.start = function(cb) {
+	console.log('start');
 	var opts = this._extra.slice();
 	opts.unshift(this._port);
 	opts.unshift('-port');
 	opts.unshift(this._avdName);
 	opts.unshift('-avd');
-	var emulatorProcess = $.emulator(opts)
+	this._emulatorProcess = $.emulator(opts)
 
-	emulatorProcess.stdout.on('data', function(d) { console.log(d.toString()); });	
-	emulatorProcess.on('exit', function() {
+	this._emulatorProcess.stdout.on('data', function(d) { console.log(d.toString()); });	
+	this._emulatorProcess.on('exit', (function() {
 		//TODO handle this
 		console.log('exit', arguments);
-	});
+		this.emit('exit');
+	}).bind(this));
 	var timeout = 3 * 60 * 1000;
 	var serial = this._serial;
 	async.series([
@@ -56,19 +60,11 @@ Emulator.prototype.installAndRunPackage = function(apkPath, cb) {
 			getActivityFromApk(apkPath, (function(error, activity) {
 				console.log('activityName is ', error, activity);
 				if (!error) {
-					console.log('unlocking');
-					this.unlock((function(error) {
-						if (!error) {
-							console.log('running');
-							this.runActivity(activity, cb);	
-						} else {
-							console.log('error unlocking', error);
-							cb(new Error('Error Unlocking Screen'));
-						}
-					}).bind(this));
+					console.log('running');
+					this.runActivity(activity, cb);	
 				} else {
 					var message = 'Error getting activity from apk: ' +
-						apkPath + ' ' + error;;
+						apkPath + ' ' + error;
 					console.log(message);
 					cb(new Error(message));
 				}
@@ -103,6 +99,13 @@ Emulator.prototype.unlock = function(cb) {
 	$.adb('-s', this._serial, 'shell', 'input', 'keyevent', '82', cb);
 };
 
+Emulator.prototype.kill = function() {
+	this._emulatorProcess.kill();
+};
+
+Emulator.prototype.wait = function(delay, cb) {
+	setTimeout(cb, delay);
+};
 
 /*
 * call an asynchronous function until it succeeds or times out
