@@ -28,6 +28,11 @@ var e = new Emulator({
 });
 e.start(function() {
 	if (argv.install) {
-		e.install(argv.install, argv.run);
+		e.install(argv.install, argv.run, function(e) {
+			if (e) {
+				console.error('Error installing apk');
+				process.exit(1);
+			}
+		});
 	};
 });
