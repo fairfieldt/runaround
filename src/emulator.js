@@ -272,7 +272,7 @@ var restartAdb = function(cb) {
 						cb(null);
 					};
 				});
-			}, 1000);
+			}, 5000);
 		}
 	});
 };
