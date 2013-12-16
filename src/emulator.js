@@ -39,6 +39,7 @@ Emulator.prototype.start = function(cb) {
 
 Emulator.prototype._start = function(cb) {
 	var opts = this._extra.slice();
+	opts.push('-no-audio');
 	opts.unshift(this._port);
 	opts.unshift('-port');
 	opts.unshift(this._avdName);
