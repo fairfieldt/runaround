@@ -108,6 +108,16 @@ Emulator.prototype.runActivity = function(activityName, cb) {
 	$.adb('-s', this._serial, 'shell', 'am', 'start', activityName, cb);
 };
 
+Emulator.prototype.killActivity = function(activityName, cb) {
+	console.log('killing', activityName);
+	$.adb('-s', this._serial, 'shell', 'am', 'force-stop', activityName, 
+		  function(status, out, err) {
+			console.log(status, out, err);
+			cb(status);	
+		  }
+	);
+};
+
 Emulator.prototype.unlock = function(cb) {
 	$.adb('-s', this._serial, 'shell', 'input', 'keyevent', '82', cb);
 };
