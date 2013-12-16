@@ -108,9 +108,9 @@ Emulator.prototype.runActivity = function(activityName, cb) {
 	$.adb('-s', this._serial, 'shell', 'am', 'start', activityName, cb);
 };
 
-Emulator.prototype.killActivity = function(activityName, cb) {
-	console.log('killing', activityName);
-	$.adb('-s', this._serial, 'shell', 'am', 'force-stop', activityName, 
+Emulator.prototype.killPackage = function(packageName, cb) {
+	console.log('killing', packageName);
+	$.adb('-s', this._serial, 'shell', 'am', 'force-stop', packageName, 
 		  function(status, out, err) {
 			console.log(status, out, err);
 			cb(status);	

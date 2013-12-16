@@ -13,6 +13,8 @@ var argv = require('optimist')
 .describe('install', 'path to the apk to install')
 .describe('run', 'run the activity after it is installed')
 .describe('emulator-options', 'extra options to pass to the emulator')
+.describe('run-activity', 'run an activity')
+.describe('kill-package', 'kill a package by package name')
 .boolean('run')
 .check(function(argv) {
 	if (!(argv.avd || argv.port)) {
@@ -21,12 +23,12 @@ var argv = require('optimist')
 })
 .argv;
 
-var e = new Emulator({
+var emulator = new Emulator({
 	extra: argv['emulator-options'],
 	avd: argv.avd,
 	port: argv.port
 });
-e.start(function() {
+emulator.start(function() {
 	if (argv.install) {
 		e.install(argv.install, argv.run, function(e) {
 			if (e) {
@@ -34,5 +36,18 @@ e.start(function() {
 				process.exit(1);
 			}
 		});
-	};
+	} else if (argv['run-activity']) {
+		emulator.runActivity(argv['run-activity'], function(e) {
+			if (e) {
+				console.log('error running activity');
+				proces.exit(1);
+			}
+		});
+	} else if (argv['kill-package']) {
+		emulator.killPackage(argv['kill-package'], function(e) {
+			if (e) {
+				console.log('error killing package');
+			}
+		})
+	}
 });
