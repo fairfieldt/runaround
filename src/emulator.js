@@ -24,6 +24,20 @@ Emulator.prototype.__proto__ = EventEmitter.prototype;
 
 Emulator.prototype.start = function(cb) {
 	console.log('start');
+	emulatorIsRunning(this._serial, (function(e, isRunning) {
+		if (e) {
+			console.log('error getting state of the emulator');
+			cb(e);
+		} else if (isRunning) {
+			console.log('already running');
+			cb(null);
+		} else {
+			this._start(cb);
+		}
+	}).bind(this));
+};
+
+Emulator.prototype._start = function(cb) {
 	var opts = this._extra.slice();
 	opts.unshift(this._port);
 	opts.unshift('-port');
@@ -33,8 +47,6 @@ Emulator.prototype.start = function(cb) {
 
 	this._emulatorProcess.stdout.on('data', function(d) { console.log(d.toString()); });	
 	this._emulatorProcess.on('exit', (function() {
-		//TODO handle this
-		console.log('exit', arguments);
 		this.emit('exit');
 	}).bind(this));
 	var timeout = 3 * 60 * 1000;
@@ -147,24 +159,48 @@ var tryFor = function() {
 	}
 };
 
+var getOnlineDevices = function(output) {
+	var onlineDevices = [];
+	var devices = output.split('\n');
+	for (var i = 0; i < devices.length; i++) {
+		var device = devices[i];
+		var match =  /^(.*)\s+(.*)$/.exec(device);
+		if (match && match[2] == 'device') {
+			onlineDevices.push(match[1]);
+		}
+	}
+	return onlineDevices;
+};
+
+var emulatorIsRunning = function(emulatorName, cb) {
+	var running = false;
+	$.adb('devices', function(status, out, err) {
+		if (!status) {
+			var devices = getOnlineDevices(out);
+			var matches = devices.filter(function(device) {
+				return device == emulatorName;
+			});
+			running = !!matches.length;
+		}
+		cb(status, running);
+	});
+};
+
 var waitForDeviceOnline = function(serial, timer, cb) {
 	$.adb('devices', function(status, out, err) {
 		if (!status) {
-			var devices = out.split('\n');
-			var matches = devices.filter(function(line) {
-				var match =  /^(.*)\s+(.*)$/.exec(line);
-				return match && match[1] == serial && match[2] == 'device';
+			emulatorIsRunning(serial, function(e, isRunning) {
+				if (isRunning) {
+					console.log('Device', serial, 'is online!');
+					timer.clear();
+					cb(null);
+				} else if (timer.fired) {
+					console.log('waitForDeviceOnline timed out');
+					cb(new Error('waiting for device timeout'));
+				} else {
+					timer.next(500);
+				}
 			});
-			if (matches.length) {
-				console.log('Device', serial, 'is online!');
-				timer.clear();
-				cb(null);
-			} else if (timer.fired) {
-				console.log('waitForDeviceOnline timed out');
-				cb(new Error('waiting for device timeout'));
-			} else {
-				timer.next(500);
-			}
 		}
 	});
 };
