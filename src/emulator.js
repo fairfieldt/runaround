@@ -152,9 +152,11 @@ var tryFor = function() {
 				clearTimeout(timeoutId);
 			},
 			next: function(interval) {
-				timeoutId = setTimeout(function() {
-					fn.apply(this, args);
-				}, interval);
+				restartAdb(function() {
+					timeoutId = setTimeout(function() {
+						fn.apply(this, args);
+					}, interval);
+				});
 			}
 		};
 		args.push(timer);
