@@ -37,6 +37,7 @@ emulator.start(function() {
 			}
 		});
 	} else if (argv['run-activity']) {
+		console.log('running activity', argv['run-activity']);
 		emulator.runActivity(argv['run-activity'], function(e) {
 			if (e) {
 				console.log('error running activity');
