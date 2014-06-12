@@ -23,8 +23,9 @@ var argv = require('optimist')
 })
 .argv;
 
+var extraOptions = [].concat(argv['emulator-options']);
 var emulator = new Emulator({
-	extra: argv['emulator-options'],
+	extra: extraOptions,
 	avd: argv.avd,
 	port: argv.port
 });
