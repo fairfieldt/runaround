@@ -1,10 +1,5 @@
 #!/usr/bin/env node
 var Emulator = require('../src/emulator').Emulator;
-/*
-startEmulator('fastemulator', function() {
-	console.log('started!', arguments);
-});
-*/
 
 var argv = require('optimist')
 .usage('start an android emulator then install and run a package\nUsage: $0')
@@ -17,39 +12,40 @@ var argv = require('optimist')
 .describe('kill-package', 'kill a package by package name')
 .boolean('run')
 .check(function(argv) {
-	if (!(argv.avd || argv.port)) {
-		throw "Error, you must provide either avd or port";
-	}
+    if (!(argv.avd || argv.port)) {
+        throw "Error, you must provide either avd or port";
+    }
 })
 .argv;
 
 var extraOptions = [].concat(argv['emulator-options']);
 var emulator = new Emulator({
-	extra: extraOptions,
-	avd: argv.avd,
-	port: argv.port
+    extra: extraOptions,
+    avd: argv.avd,
+    port: argv.port
 });
+
 emulator.start(function() {
-	if (argv.install) {
-		e.install(argv.install, argv.run, function(e) {
-			if (e) {
-				console.error('Error installing apk');
-				process.exit(1);
-			}
-		});
-	} else if (argv['run-activity']) {
-		console.log('running activity', argv['run-activity']);
-		emulator.runActivity(argv['run-activity'], function(e) {
-			if (e) {
-				console.log('error running activity');
-				proces.exit(1);
-			}
-		});
-	} else if (argv['kill-package']) {
-		emulator.killPackage(argv['kill-package'], function(e) {
-			if (e) {
-				console.log('error killing package');
-			}
-		})
-	}
+    if (argv.install) {
+        e.install(argv.install, argv.run, function(e) {
+            if (e) {
+                console.error('Error installing apk');
+                process.exit(1);
+            }
+        });
+    } else if (argv['run-activity']) {
+        console.log('running activity', argv['run-activity']);
+        emulator.runActivity(argv['run-activity'], function(e) {
+            if (e) {
+                console.log('error running activity');
+                proces.exit(1);
+            }
+        });
+    } else if (argv['kill-package']) {
+        emulator.killPackage(argv['kill-package'], function(e) {
+            if (e) {
+                console.log('error killing package');
+            }
+        });
+    }
 });
